@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Receipt ' + ${payment.receiptNo} + ' — IRONCORE'">Payment Receipt</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/css/ironcore.css}">
+
+    <style>
+        .receipt-card {
+            max-width: 680px;
+            margin: 40px auto;
+            background: #ffffff;
+            color: #0F172A;
+            border-radius: var(--radius-xl);
+            padding: 48px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        @media print {
+            body { background: #fff !important; }
+            .receipt-card {
+                margin: 0 !important;
+                padding: 20px !important;
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body style="background: var(--bg-deep);">
+    <!-- Action Controls (Non-Printable) -->
+    <div class="no-print" style="max-width: 680px; margin: 24px auto 0; display: flex; justify-content: space-between; align-items: center;">
+        <a th:href="@{/payments}" class="btn-iron-secondary">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+            <span>Back to Payments</span>
+        </a>
+        <button type="button" class="btn-iron-primary" onclick="window.print()">
+            <i data-lucide="printer" style="width: 16px; height: 16px;"></i>
+            <span>Print Receipt / Save PDF</span>
+        </button>
+    </div>
+
+    <!-- Official Invoice / Receipt Card -->
+    <div class="receipt-card">
+        <!-- Receipt Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #E2E8F0; padding-bottom: 24px; margin-bottom: 28px;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #080B10; color: #CCFF00; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; font-family: 'Outfit', sans-serif;">
+                    IC
+                </div>
+                <div>
+                    <h1 style="font-size: 24px; font-weight: 900; color: #080B10; margin: 0; line-height: 1;">IRONCORE</h1>
+                    <div style="font-size: 11px; color: #64748B; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Smart Gym Management</div>
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <div style="font-size: 18px; font-weight: 800; color: #080B10; font-family: 'Outfit', sans-serif;">TAX INVOICE</div>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: #0284C7;" th:text="${payment.receiptNo}">REC-2026-0001</div>
+                <div style="font-size: 12px; color: #64748B; margin-top: 2px;" th:text="${#temporals.format(payment.paymentDate, 'dd MMMM yyyy, hh:mm a')}">10 Jan 2026</div>
+            </div>
+        </div>
+
+        <!-- Billed To & Facility Info -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; font-size: 13.5px;">
+            <div>
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748B; margin-bottom: 6px;">Billed To (Member)</div>
+                <div style="font-size: 16px; font-weight: 800; color: #0F172A;" th:text="${member.fullName}">Alex Mercer</div>
+                <div style="color: #475569; margin-top: 2px;">
+                    Member Code: <strong style="color: #0F172A;" th:text="${member.memberCode}">IC-M-1001</strong><br>
+                    Email: <span th:text="${member.email}">alex@gmail.com</span><br>
+                    Phone: <span th:text="${member.phone}">+91 91234 56780</span>
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748B; margin-bottom: 6px;">Facility Location</div>
+                <div style="font-weight: 700; color: #0F172A;">IRONCORE Fitness Club</div>
+                <div style="color: #475569; margin-top: 2px;">
+                    802 High-Performance Way, Platinum Tower<br>
+                    Bandra West, Mumbai 400050<br>
+                    GSTIN: 27AABCI9812K1Z9
+                </div>
+            </div>
+        </div>
+
+        <!-- Line Items Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 13.5px;">
+            <thead>
+                <tr style="background: #F8FAFC; border-bottom: 1.5px solid #CBD5E1;">
+                    <th style="padding: 12px 14px; text-align: left; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Description / Item</th>
+                    <th style="padding: 12px 14px; text-align: center; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Channel</th>
+                    <th style="padding: 12px 14px; text-align: right; font-weight: 700; color: #475569; font-size: 11px; text-transform: uppercase;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #E2E8F0;">
+                    <td style="padding: 16px 14px;">
+                        <div style="font-weight: 700; color: #0F172A;" th:text="${payment.membership != null ? payment.membership.plan.name : (payment.notes != null ? payment.notes : 'Gym Subscription Fee')}">Platinum Titan Annual</div>
+                        <div style="font-size: 12px; color: #64748B; margin-top: 3px;" th:text="${payment.notes != null ? payment.notes : 'Full Gym Floor & Recovery Privileges'}">Full Gym Floor & Recovery Privileges</div>
+                    </td>
+                    <td style="padding: 16px 14px; text-align: center;">
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; background: #F1F5F9; padding: 3px 8px; border-radius: 4px; border: 1px solid #CBD5E1;" th:text="${payment.paymentMethod}">UPI</span>
+                    </td>
+                    <td style="padding: 16px 14px; text-align: right; font-weight: 800; font-size: 15px; color: #0F172A;">
+                        <span>₹</span><span th:text="${#numbers.formatDecimal(payment.amount, 1, 'COMMA', 2, 'POINT')}">15,999.00</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Total Breakdown -->
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 32px;">
+            <div style="width: 260px; font-size: 13.5px;">
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; color: #64748B;">
+                    <span>Subtotal</span>
+                    <span style="font-weight: 600; color: #0F172A;">₹<span th:text="${#numbers.formatDecimal(payment.amount, 1, 'COMMA', 2, 'POINT')}">15,999.00</span></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; color: #64748B;">
+                    <span>Tax (Inclusive)</span>
+                    <span style="font-weight: 600; color: #0F172A;">₹0.00</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 12px 0 6px; border-top: 2px solid #0F172A; font-size: 17px; font-weight: 900; color: #0F172A;">
+                    <span>Total Paid</span>
+                    <span style="color: #059669;">₹<span th:text="${#numbers.formatDecimal(payment.amount, 1, 'COMMA', 2, 'POINT')}">15,999.00</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Proof & Footer -->
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; font-size: 12.5px; color: #475569;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Transaction Ref: <strong style="font-family: 'JetBrains Mono', monospace; color: #0F172A;" th:text="${payment.transactionId != null ? payment.transactionId : 'N/A'}">TXN_774912</strong></span>
+                <span>Payment Status: <strong style="color: #059669;">CONFIRMED &bull; SUCCESS</strong></span>
+            </div>
+        </div>
+
+        <div style="text-align: center; border-top: 1px solid #E2E8F0; padding-top: 20px; font-size: 11.5px; color: #94A3B8;">
+            Thank you for being part of IRONCORE Fitness Club. This is a computer-generated tax invoice and requires no physical signature.
+        </div>
+    </div>
+
+    <script>
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

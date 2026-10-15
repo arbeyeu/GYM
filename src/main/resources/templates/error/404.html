@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 Not Found — IRONCORE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/css/ironcore.css}">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-deep); text-align: center; padding: 20px;">
+    <div class="iron-card" style="max-width: 520px; padding: 48px 32px; border: 1px solid var(--border-medium);">
+        <div style="width: 64px; height: 64px; border-radius: var(--radius-xl); background: var(--amber-subtle); color: var(--amber); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="compass" style="width: 32px; height: 32px;"></i>
+        </div>
+        <div style="font-size: 14px; font-weight: 800; color: var(--amber); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">Error 404 &bull; Missing Record</div>
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #fff;">Resource Not Found</h1>
+        <p style="color: var(--text-secondary); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px;" th:text="${message != null ? message : 'The route, member ID, or file you were searching for does not exist in the database.'}">
+            The resource you requested could not be located in the database.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 12px;">
+            <a th:href="@{/dashboard}" class="btn-iron-primary">Back to Safety</a>
+            <a th:href="@{/members}" class="btn-iron-secondary">Member Directory</a>
+        </div>
+    </div>
+    <script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

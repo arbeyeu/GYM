@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+    <header th:fragment="navbar" class="app-header">
+        <!-- Mobile Toggle Button -->
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <button id="sidebarToggle" class="btn-iron-ghost" style="display: none; padding: 6px;" title="Toggle Sidebar">
+                <i data-lucide="menu" style="width: 20px; height: 20px;"></i>
+            </button>
+            <form th:action="@{/members}" method="get" class="quick-search-box" style="margin: 0;">
+                <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+                <input id="globalSearchInput" type="text" name="query" placeholder="Search members, phone, ID...">
+                <span class="shortcut-kbd">⌘K</span>
+            </form>
+        </div>
+
+        <!-- Quick Actions & Profile -->
+        <div class="header-actions">
+            <!-- Quick Check In Trigger -->
+            <button type="button" class="btn-iron-secondary" onclick="openModal('quickCheckinModal')">
+                <i data-lucide="check-circle-2" style="width: 16px; height: 16px; color: var(--lime);"></i>
+                <span>Quick Check-In</span>
+            </button>
+
+            <!-- Quick Member Register -->
+            <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_MANAGER')">
+                <a th:href="@{/members/new}" class="btn-iron-primary">
+                    <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+                    <span>Add Member</span>
+                </a>
+            </div>
+
+            <!-- Notifications Link -->
+            <a th:href="@{/notifications}" class="btn-iron-ghost" style="position: relative; padding: 8px;" title="Alerts">
+                <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+                <span style="position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; background: var(--lime); border-radius: 50%; box-shadow: 0 0 6px var(--lime);"></span>
+            </a>
+
+            <!-- User Menu -->
+            <a th:href="@{/profile}" class="btn-iron-ghost" style="padding: 6px 12px; gap: 8px;">
+                <div class="avatar-circle" style="width: 28px; height: 28px; font-size: 11px;">
+                    <span sec:authentication="name" th:text="${#strings.substring(#authentication.name, 0, 1).toUpperCase()}">U</span>
+                </div>
+                <span style="font-size: 13px; font-weight: 600;" sec:authentication="name">User</span>
+            </a>
+        </div>
+    </header>
+</body>
+</html>

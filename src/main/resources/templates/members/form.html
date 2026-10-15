@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:text="${isEdit ? 'Edit Member Profile' : 'Register New Member'} + ' — IRONCORE'">Register Member</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Breadcrumb & Title -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">
+                    <a th:href="@{/members}">Members</a>
+                    <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                    <span th:text="${isEdit ? 'Edit Profile' : 'New Member Registration'}">Register</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;" th:text="${isEdit ? 'Edit Member Profile' : 'Register New Member'}">Register Member</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Fill in the profile details and assign a membership tier.</p>
+            </div>
+            <a th:href="@{/members}" class="btn-iron-secondary">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                <span>Back to Directory</span>
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div class="iron-card" style="max-width: 900px;">
+            <form th:action="${isEdit} ? @{'/members/update/' + ${memberDto.id}} : @{/members/create}"
+                  th:object="${memberDto}" method="post">
+                
+                <!-- Section 1: Personal Information -->
+                <div style="margin-bottom: 24px;">
+                    <h3 style="font-size: 16px; color: var(--lime); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="user" style="width: 18px; height: 18px;"></i>
+                        1. Personal Information
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">First Name *</label>
+                            <input type="text" th:field="*{firstName}" class="form-control-iron" placeholder="e.g. Alex" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name *</label>
+                            <input type="text" th:field="*{lastName}" class="form-control-iron" placeholder="e.g. Mercer" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" th:field="*{email}" class="form-control-iron" placeholder="alex.mercer@gmail.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number *</label>
+                            <input type="text" th:field="*{phone}" class="form-control-iron" placeholder="+91 91234 56780" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" th:field="*{dateOfBirth}" class="form-control-iron">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender</label>
+                            <select th:field="*{gender}" class="form-control-iron">
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other / Non-Binary</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Account Status</label>
+                            <select th:field="*{status}" class="form-control-iron">
+                                <option value="ACTIVE">ACTIVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                                <option value="SUSPENDED">SUSPENDED</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Residential Address</label>
+                        <input type="text" th:field="*{address}" class="form-control-iron" placeholder="Apartment / Suite, Street, City">
+                    </div>
+                </div>
+
+                <!-- Section 2: Emergency Contact -->
+                <div style="margin-bottom: 24px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                    <h3 style="font-size: 16px; color: var(--emerald); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="shield-alert" style="width: 18px; height: 18px;"></i>
+                        2. Emergency Contact
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Contact Person Name</label>
+                            <input type="text" th:field="*{emergencyContactName}" class="form-control-iron" placeholder="e.g. Sarah Mercer">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Emergency Phone Number</label>
+                            <input type="text" th:field="*{emergencyContactPhone}" class="form-control-iron" placeholder="+91 91234 00001">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Initial Membership Plan (Only for New Registration) -->
+                <div th:if="${!isEdit}" style="margin-bottom: 24px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                    <h3 style="font-size: 16px; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="award" style="width: 18px; height: 18px;"></i>
+                        3. Initial Membership & Payment
+                    </h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Select Membership Plan</label>
+                            <select th:field="*{planId}" class="form-control-iron">
+                                <option value="">-- No plan now (Assign later) --</option>
+                                <option th:each="p : ${plans}" th:value="${p.id}" th:text="${p.name + ' — ₹' + p.price + ' (' + p.durationDays + ' days)'}">Bronze</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select th:field="*{paymentMethod}" class="form-control-iron">
+                                <option value="UPI">UPI / QR Code</option>
+                                <option value="CARD">Credit / Debit Card</option>
+                                <option value="CASH">Cash</option>
+                                <option value="NET_BANKING">Net Banking</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); cursor: pointer;">
+                            <input type="checkbox" th:field="*{createLoginUser}" style="accent-color: var(--lime);">
+                            <span>Automatically generate member portal login account (Password will be: <code style="color: var(--lime);">member123</code>)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; justify-content: flex-end; gap: 14px; border-top: 1px solid var(--border-subtle); padding-top: 20px;">
+                    <a th:href="@{/members}" class="btn-iron-secondary">Cancel</a>
+                    <button type="submit" class="btn-iron-primary">
+                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                        <span th:text="${isEdit ? 'Save Changes' : 'Complete Registration'}">Save</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

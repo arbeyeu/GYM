@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Reports & Business Intelligence — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 800;">Reports & Business Intelligence</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Operational audits, revenue analytics, expiry forecasters, and CSV data exports.</p>
+            </div>
+            <a th:href="@{/reports/export(reportType=${filter.reportType}, startDate=${filter.startDate}, endDate=${filter.endDate})}" class="btn-iron-primary">
+                <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+                <span>Export Report to CSV</span>
+            </a>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="iron-card" style="padding: 18px; margin-bottom: 24px;">
+            <form th:action="@{/reports}" method="get" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+                <div class="form-group" style="margin-bottom: 0; min-width: 240px; flex: 1;">
+                    <label class="form-label">Report Category</label>
+                    <select name="reportType" class="form-control-iron" onchange="this.form.submit()">
+                        <option value="DAILY_ATTENDANCE" th:selected="${filter.reportType == 'DAILY_ATTENDANCE'}">Daily Attendance Activity</option>
+                        <option value="MONTHLY_REVENUE" th:selected="${filter.reportType == 'MONTHLY_REVENUE'}">Revenue & Transactions</option>
+                        <option value="MEMBERSHIP_EXPIRY" th:selected="${filter.reportType == 'MEMBERSHIP_EXPIRY'}">Membership Expiry Risk (30 Days)</option>
+                        <option value="MEMBERS_DIRECTORY" th:selected="${filter.reportType == 'MEMBERS_DIRECTORY'}">Member Demographics & Directory</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0; width: 170px;">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="startDate" th:value="${filter.startDate}" class="form-control-iron">
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-iron-secondary" style="padding: 11px 20px;">
+                        <i data-lucide="filter" style="width: 15px; height: 15px;"></i> Generate
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Report Results Card -->
+        <div class="iron-card">
+            <div class="iron-card-header">
+                <div>
+                    <div class="iron-card-title">
+                        <i data-lucide="file-text" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                        <span th:text="${reportData.title}">Report Title</span>
+                    </div>
+                    <div class="iron-card-subtitle">Verified database output</div>
+                </div>
+                <span class="status-pill active" th:if="${reportData.count != null}" th:text="${reportData.count} + ' Records Found'"></span>
+                <span class="status-pill active" th:if="${reportData.totalRevenue != null}" th:text="'Total Revenue: ₹' + ${#numbers.formatDecimal(reportData.totalRevenue, 1, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+
+            <!-- Dynamic Table based on reportType -->
+            <div class="iron-table-wrapper">
+                <!-- Case 1: Attendance Report -->
+                <table th:if="${filter.reportType == 'DAILY_ATTENDANCE'}" class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Member Code</th>
+                            <th>Member Name</th>
+                            <th>Date</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reportData.records}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${r.member.memberCode}">IC-M-1001</td>
+                            <td class="strong" th:text="${r.member.fullName}">Alex Mercer</td>
+                            <td th:text="${#temporals.format(r.attendanceDate, 'dd MMM yyyy')}">14 Oct 2026</td>
+                            <td style="color: var(--emerald);" th:text="${#temporals.format(r.checkInTime, 'hh:mm a')}">09:15 AM</td>
+                            <td th:text="${r.checkOutTime != null ? #temporals.format(r.checkOutTime, 'hh:mm a') : 'In Session'}">—</td>
+                            <td th:text="${r.notes != null ? r.notes : '—'}">Regular workout</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reportData.records)}">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">No attendance logged for this date.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Case 2: Revenue Report -->
+                <table th:if="${filter.reportType == 'MONTHLY_REVENUE'}" class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Receipt No</th>
+                            <th>Member</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                            <th>Payment Date</th>
+                            <th>Txn ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reportData.records}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${r.receiptNo}">REC-2026-0001</td>
+                            <td class="strong" th:text="${r.member.fullName}">Alex Mercer</td>
+                            <td style="color: #fff; font-weight: 700;" th:text="'₹' + ${#numbers.formatDecimal(r.amount, 1, 'COMMA', 2, 'POINT')}">₹15,999.00</td>
+                            <td><span class="method-tag" th:text="${r.paymentMethod}">UPI</span></td>
+                            <td><span class="status-pill active" th:text="${r.status}">PAID</span></td>
+                            <td th:text="${#temporals.format(r.paymentDate, 'dd MMM yyyy, hh:mm a')}">10 Jan 2026</td>
+                            <td class="mono-font" style="font-size: 12px; color: var(--text-muted);" th:text="${r.transactionId}">TXN_001</td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reportData.records)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No transactions found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Case 3: Membership Expiry Report -->
+                <table th:if="${filter.reportType == 'MEMBERSHIP_EXPIRY'}" class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Member Code</th>
+                            <th>Member Name</th>
+                            <th>Plan Tier</th>
+                            <th>Start Date</th>
+                            <th>Expiry Date</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reportData.records}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${r.member.memberCode}">IC-M-1005</td>
+                            <td class="strong" th:text="${r.member.fullName}">Jordan Hayes</td>
+                            <td th:text="${r.plan.name}">Bronze Monthly</td>
+                            <td th:text="${#temporals.format(r.startDate, 'dd MMM yyyy')}">20 Jan 2026</td>
+                            <td style="color: var(--amber); font-weight: 700;" th:text="${#temporals.format(r.endDate, 'dd MMM yyyy')}">19 Feb 2026</td>
+                            <td><span class="status-pill expiring" th:text="${r.status}">EXPIRING</span></td>
+                            <td style="text-align: right;">
+                                <a th:href="@{'/members/' + ${r.member.id}}" class="btn-iron-primary" style="padding: 4px 10px; font-size: 11px;">Renew</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(reportData.records)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">No memberships expiring in the next 30 days!</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Case 4: Member Directory Report -->
+                <table th:if="${filter.reportType == 'MEMBERS_DIRECTORY'}" class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Gender</th>
+                            <th>Joined Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reportData.records}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${r.memberCode}">IC-M-1001</td>
+                            <td class="strong" th:text="${r.fullName}">Alex Mercer</td>
+                            <td th:text="${r.email}">alex@gmail.com</td>
+                            <td th:text="${r.phone}">+91 91234</td>
+                            <td th:text="${r.gender != null ? r.gender : '—'}">MALE</td>
+                            <td th:text="${#temporals.format(r.joinedDate, 'dd MMM yyyy')}">10 Jan 2026</td>
+                            <td><span class="status-pill" th:classappend="${r.status.toLowerCase()}" th:text="${r.status}">ACTIVE</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

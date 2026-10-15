@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Attendance Terminal — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span class="status-pill active">TERMINAL ONLINE</span>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${#temporals.format(#temporals.createNow(), 'EEEE, dd MMMM yyyy')}">Date</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;">Turnstile & Attendance Terminal</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Real-time turnstile verification, check-in logging, and active floor occupancy.</p>
+            </div>
+            <button type="button" class="btn-iron-primary" onclick="openModal('quickCheckinModal')">
+                <i data-lucide="scan-line" style="width: 16px; height: 16px;"></i>
+                <span>Check-In Member</span>
+            </button>
+        </div>
+
+        <!-- 3 KPI Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-bottom: 24px;">
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Today's Visits</span>
+                    <div class="metric-icon-wrap lime">
+                        <i data-lucide="check-circle" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value" th:text="${todayCount}">142</div>
+                <div class="metric-trend up">Total check-ins today</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Currently on Floor</span>
+                    <div class="metric-icon-wrap emerald">
+                        <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value" style="color: var(--emerald);" th:text="${currentlyIn}">38</div>
+                <div class="metric-trend up">Active gym floor occupancy</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Completed Sessions</span>
+                    <div class="metric-icon-wrap cyan">
+                        <i data-lucide="log-out" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value" th:text="${checkedOutCount}">104</div>
+                <div class="metric-trend neutral">Checked out today</div>
+            </div>
+        </div>
+
+        <!-- Rapid Check-in Console Bar -->
+        <div class="iron-card" style="margin-bottom: 24px; padding: 20px;">
+            <div class="iron-card-title" style="font-size: 15px; margin-bottom: 12px;">
+                <i data-lucide="zap" style="width: 16px; height: 16px; color: var(--lime);"></i>
+                Rapid Turnstile Check-In (Scanner / Barcode / ID Input)
+            </div>
+            <form th:action="@{/attendance/checkin}" method="post" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <input type="text" name="memberCode" class="form-control-iron" placeholder="Scan barcode or enter Member ID (e.g. IC-M-1001)..." style="flex: 2; min-width: 260px;" required autofocus>
+                <input type="text" name="notes" class="form-control-iron" placeholder="Workout notes / locker #" style="flex: 1; min-width: 200px;">
+                <button type="submit" class="btn-iron-primary" style="padding: 10px 24px;">
+                    <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+                    <span>Log Check-In</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Today's Attendance Table -->
+        <div class="iron-card">
+            <div class="iron-card-header">
+                <div>
+                    <div class="iron-card-title">
+                        <i data-lucide="list" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                        Today's Real-Time Log
+                    </div>
+                    <div class="iron-card-subtitle">Active and completed gym sessions for today</div>
+                </div>
+                <span class="status-pill active" th:text="${todayCount} + ' Sessions'"></span>
+            </div>
+
+            <div class="iron-table-wrapper">
+                <table class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Member Code</th>
+                            <th>Member Name</th>
+                            <th>Check-In Time</th>
+                            <th>Check-Out Time</th>
+                            <th>Session Status</th>
+                            <th>Workout Notes</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="att : ${todayAttendance}">
+                            <td>
+                                <a th:href="@{'/members/' + ${att.member.id}}" class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${att.member.memberCode}">IC-M-1001</a>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="avatar-circle" style="width: 30px; height: 30px; font-size: 11px;">
+                                        <span th:text="${#strings.substring(att.member.firstName, 0, 1)}">A</span>
+                                    </div>
+                                    <a th:href="@{'/members/' + ${att.member.id}}" class="strong" th:text="${att.member.fullName}">Alex Mercer</a>
+                                </div>
+                            </td>
+                            <td style="color: #fff; font-weight: 600;" th:text="${#temporals.format(att.checkInTime, 'hh:mm:ss a')}">09:15:30 AM</td>
+                            <td th:text="${att.checkOutTime != null ? #temporals.format(att.checkOutTime, 'hh:mm:ss a') : '—'}">—</td>
+                            <td>
+                                <span th:if="${att.currentlyCheckedIn}" class="status-pill active">ON FLOOR</span>
+                                <span th:if="${!att.currentlyCheckedIn}" class="status-pill neutral" style="background: rgba(148, 163, 184, 0.15); color: #94A3B8;">COMPLETED</span>
+                            </td>
+                            <td style="font-size: 12.5px; color: var(--text-secondary);" th:text="${att.notes}">Morning Chest Session</td>
+                            <td style="text-align: right;">
+                                <form th:if="${att.currentlyCheckedIn}" th:action="@{'/attendance/checkout/' + ${att.id}}" method="post" style="margin: 0; display: inline;">
+                                    <button type="submit" class="btn-iron-secondary" style="padding: 5px 12px; font-size: 11px;">
+                                        <i data-lucide="log-out" style="width: 12px; height: 12px; color: var(--rose);"></i> Check Out
+                                    </button>
+                                </form>
+                                <span th:if="${!att.currentlyCheckedIn}" style="font-size: 12px; color: var(--text-muted);">Session Closed</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(todayAttendance)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                <i data-lucide="calendar-x" style="width: 28px; height: 28px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;"></i>
+                                No check-ins recorded yet today. Use the terminal above to log the first member.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

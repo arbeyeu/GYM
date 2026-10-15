@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Trainer Command Portal — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span class="status-pill active">COACHING ROSTER</span>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${trainer != null ? trainer.specialization : 'High Performance Coach'}">Specialization</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;">
+                    Coach Dashboard &bull; <span style="color: var(--lime);" th:text="${trainer != null ? trainer.fullName : 'Head Coach'}">Marcus Vance</span>
+                </h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Monitor assigned athletes, prescribe periodized splits, and track progressive overload.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/workouts/builder}" class="btn-iron-primary">
+                    <i data-lucide="plus-circle" style="width: 16px; height: 16px;"></i>
+                    <span>Create Workout Split</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3 Trainer KPI Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 28px;">
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Assigned Athletes</span>
+                    <div class="metric-icon-wrap lime">
+                        <i data-lucide="users" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value" th:text="${clientCount}">2</div>
+                <div class="metric-trend up">Active 1-on-1 and Split Clients</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Published Plans</span>
+                    <div class="metric-icon-wrap emerald">
+                        <i data-lucide="clipboard-list" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value" th:text="${#lists.size(workoutPlans)}">3</div>
+                <div class="metric-trend up">Periodized library programs</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-label">Coaching Rate</span>
+                    <div class="metric-icon-wrap cyan">
+                        <i data-lucide="award" style="width: 20px; height: 20px;"></i>
+                    </div>
+                </div>
+                <div class="metric-value">
+                    <span style="font-size: 18px; color: var(--lime);">₹</span>
+                    <span th:text="${trainer != null ? #numbers.formatDecimal(trainer.hourlyRate, 1, 'COMMA', 0, 'POINT') : '1,500'}">1,500</span><span style="font-size: 14px; color: var(--text-muted);">/hr</span>
+                </div>
+                <div class="metric-trend neutral" th:text="${trainer != null ? trainer.qualifications : 'CSCS Certified'}">Credentials</div>
+            </div>
+        </div>
+
+        <!-- Assigned Athletes Table -->
+        <div class="iron-card" style="margin-bottom: 28px;">
+            <div class="iron-card-header">
+                <div>
+                    <div class="iron-card-title">
+                        <i data-lucide="user-check" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                        Assigned Athletes & Training Status
+                    </div>
+                    <div class="iron-card-subtitle">Active clients currently under your coaching protocol</div>
+                </div>
+            </div>
+
+            <div class="iron-table-wrapper">
+                <table class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Athlete Code</th>
+                            <th>Athlete Name</th>
+                            <th>Assigned Program</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Coaching Notes</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${assignedClients}">
+                            <td>
+                                <a th:href="@{'/members/' + ${a.member.id}}" class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${a.member.memberCode}">IC-M-1001</a>
+                            </td>
+                            <td>
+                                <a th:href="@{'/members/' + ${a.member.id}}" class="strong" th:text="${a.member.fullName}">Alex Mercer</a>
+                            </td>
+                            <td>
+                                <span class="method-tag" th:text="${a.workoutPlan.name}">Hypertrophy Titan</span>
+                            </td>
+                            <td th:text="${#temporals.format(a.startDate, 'dd MMM yyyy')}">15 Jan 2026</td>
+                            <td th:text="${a.endDate != null ? #temporals.format(a.endDate, 'dd MMM yyyy') : 'Ongoing'}">15 Mar 2026</td>
+                            <td>
+                                <span class="status-pill active" th:text="${a.status}">ACTIVE</span>
+                            </td>
+                            <td style="font-size: 12.5px; color: var(--text-secondary); max-width: 250px;" th:text="${a.notes}">Upper chest volume focus</td>
+                            <td style="text-align: right;">
+                                <a th:href="@{'/members/' + ${a.member.id}}" class="btn-iron-secondary" style="padding: 4px 10px; font-size: 11px;">View Profile</a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(assignedClients)}">
+                            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 30px;">No athletes currently assigned to your roster.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

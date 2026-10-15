@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Profile & System Settings — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="margin-bottom: 24px;">
+            <h1 style="font-size: 28px; font-weight: 800;">Account Settings & Credentials</h1>
+            <p style="color: var(--text-muted); font-size: 14px;">Manage your access credentials, display name, and system preferences.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; max-width: 1000px;">
+            <!-- Profile Edit Card -->
+            <div class="iron-card">
+                <div class="iron-card-title" style="margin-bottom: 18px;">
+                    <i data-lucide="user-cog" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                    User Information
+                </div>
+
+                <form th:action="@{/profile/update}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Username</label>
+                        <input type="text" class="form-control-iron" th:value="${user != null ? user.username : 'admin'}" readonly style="opacity: 0.7;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="fullName" class="form-control-iron" th:value="${user != null ? user.fullName : 'Administrator'}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" name="email" class="form-control-iron" th:value="${user != null ? user.email : 'admin@ironcore.com'}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Assigned Role</label>
+                        <input type="text" class="form-control-iron" th:value="${user != null ? user.role : 'ROLE_ADMIN'}" readonly style="opacity: 0.7;">
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-subtle); padding-top: 18px; margin-top: 24px;">
+                        <h4 style="font-size: 14px; color: var(--lime); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px;">Update Password</h4>
+                        <div class="form-group">
+                            <label class="form-label">New Password (Leave blank to keep unchanged)</label>
+                            <input type="password" name="newPassword" class="form-control-iron" placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+                        <button type="submit" class="btn-iron-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- System Info Sidebar -->
+            <div class="iron-card" style="height: fit-content;">
+                <div class="iron-card-title" style="font-size: 15px; margin-bottom: 16px;">
+                    <i data-lucide="shield" style="width: 16px; height: 16px; color: var(--emerald);"></i>
+                    Security Telemetry
+                </div>
+                <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.8;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+                        <span>RBAC Security:</span>
+                        <strong style="color: var(--emerald);">Enforced</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+                        <span>Password Hashing:</span>
+                        <strong style="color: #fff;">BCrypt 10</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+                        <span>Session Engine:</span>
+                        <strong style="color: #fff;">Spring Security 6</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Architecture:</span>
+                        <strong style="color: var(--lime);">Java 17 / Spring Boot 3</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

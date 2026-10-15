@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Member Directory — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 800;">Member Directory</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Manage member profiles, contact credentials, and membership status.</p>
+            </div>
+            <a th:href="@{/members/new}" class="btn-iron-primary">
+                <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>
+                <span>Register New Member</span>
+            </a>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="iron-card" style="padding: 18px; margin-bottom: 20px;">
+            <form th:action="@{/members}" method="get" style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+                <!-- Search Box -->
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 280px;">
+                    <div style="position: relative; width: 100%;">
+                        <i data-lucide="search" style="position: absolute; left: 14px; top: 12px; width: 16px; height: 16px; color: var(--text-muted);"></i>
+                        <input type="text" name="query" th:value="${query}" class="form-control-iron" placeholder="Search by name, ID code, phone, or email..." style="padding-left: 38px;">
+                    </div>
+                </div>
+
+                <!-- Status Filter Pills -->
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Status:</label>
+                    <select name="status" class="form-control-iron" style="width: 140px; padding: 8px 12px;" onchange="this.form.submit()">
+                        <option value="ALL" th:selected="${status == 'ALL' or status == null}">All Statuses</option>
+                        <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Active</option>
+                        <option value="INACTIVE" th:selected="${status == 'INACTIVE'}">Inactive</option>
+                        <option value="SUSPENDED" th:selected="${status == 'SUSPENDED'}">Suspended</option>
+                    </select>
+                    <button type="submit" class="btn-iron-secondary" style="padding: 9px 16px;">Apply</button>
+                    <a th:href="@{/members}" class="btn-iron-ghost" style="padding: 9px 14px;">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Member Records Table -->
+        <div class="iron-table-wrapper">
+            <table class="iron-table">
+                <thead>
+                    <tr>
+                        <th>Member Code</th>
+                        <th>Member Name</th>
+                        <th>Contact Email</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Status</th>
+                        <th>Joined Date</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="member : ${members}">
+                        <td>
+                            <a th:href="@{'/members/' + ${member.id}}" style="color: var(--lime); font-family: 'JetBrains Mono', monospace; font-weight: 700;" th:text="${member.memberCode}">IC-M-1001</a>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="avatar-circle" style="width: 32px; height: 32px; font-size: 12px;">
+                                    <span th:text="${#strings.substring(member.firstName, 0, 1)}">A</span>
+                                </div>
+                                <div>
+                                    <a th:href="@{'/members/' + ${member.id}}" class="strong" th:text="${member.fullName}">Alex Mercer</a>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${member.email}">alex.mercer@gmail.com</td>
+                        <td th:text="${member.phone}">+91 91234 56780</td>
+                        <td th:text="${member.gender != null ? member.gender : '—'}">MALE</td>
+                        <td>
+                            <span class="status-pill" th:classappend="${member.status.toLowerCase()}" th:text="${member.status}">ACTIVE</span>
+                        </td>
+                        <td th:text="${#temporals.format(member.joinedDate, 'dd MMM yyyy')}">10 Jan 2026</td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px;">
+                                <a th:href="@{'/members/' + ${member.id}}" class="btn-iron-ghost" style="padding: 6px 10px;" title="View Details">
+                                    <i data-lucide="eye" style="width: 15px; height: 15px;"></i>
+                                </a>
+                                <a th:href="@{'/members/edit/' + ${member.id}}" class="btn-iron-ghost" style="padding: 6px 10px;" title="Edit Profile">
+                                    <i data-lucide="edit-3" style="width: 15px; height: 15px;"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(members)}">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i data-lucide="user-x" style="width: 32px; height: 32px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;"></i>
+                            No members found matching your search or filters.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${totalPages > 1}" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+            <div style="font-size: 13px; color: var(--text-muted);">
+                Showing page <span th:text="${currentPage + 1}" style="color: #fff; font-weight: 600;"></span> of <span th:text="${totalPages}" style="color: #fff; font-weight: 600;"></span> (<span th:text="${totalElements}"></span> total members)
+            </div>
+            <div style="display: flex; gap: 6px;">
+                <a th:if="${currentPage > 0}" th:href="@{/members(page=${currentPage - 1}, query=${query}, status=${status})}" class="btn-iron-secondary" style="padding: 6px 12px; font-size: 12px;">Previous</a>
+                <a th:if="${currentPage + 1 < totalPages}" th:href="@{/members(page=${currentPage + 1}, query=${query}, status=${status})}" class="btn-iron-secondary" style="padding: 6px 12px; font-size: 12px;">Next</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title th:text="${member.fullName} + ' — Member Profile'"></title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Breadcrumb & Actions Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">
+                    <a th:href="@{/members}">Members</a>
+                    <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                    <span th:text="${member.memberCode}">IC-M-1001</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;" th:text="${member.fullName}">Alex Mercer</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Member Dossier & Fitness Activity Record</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-iron-secondary" onclick="openModal('renewModal')">
+                    <i data-lucide="refresh-cw" style="width: 16px; height: 16px; color: var(--lime);"></i>
+                    <span>Renew / Assign Plan</span>
+                </button>
+                <a th:href="@{'/members/edit/' + ${member.id}}" class="btn-iron-secondary">
+                    <i data-lucide="edit-3" style="width: 16px; height: 16px;"></i>
+                    <span>Edit Profile</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Profile Top Overview Card -->
+        <div class="iron-card" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="avatar-circle" style="width: 68px; height: 68px; font-size: 26px; border: 2px solid var(--lime);">
+                        <span th:text="${#strings.substring(member.firstName, 0, 1)}">A</span>
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <h2 style="font-size: 22px; font-weight: 800;" th:text="${member.fullName}">Alex Mercer</h2>
+                            <span class="status-pill" th:classappend="${member.status.toLowerCase()}" th:text="${member.status}">ACTIVE</span>
+                        </div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--lime); margin-top: 2px;" th:text="${member.memberCode}">IC-M-1001</div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                            <span th:text="${member.email}">alex@gmail.com</span> &bull; 
+                            <span th:text="${member.phone}">+91 91234 56780</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Membership Status Box -->
+                <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-medium); border-radius: var(--radius-md); padding: 14px 20px; min-width: 260px;">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 4px;">Membership Status</div>
+                    <div th:if="${activeMembership != null}">
+                        <div style="font-size: 16px; font-weight: 700; color: #fff;" th:text="${activeMembership.plan.name}">Platinum Titan Annual</div>
+                        <div style="font-size: 12px; color: var(--lime); margin-top: 2px;">
+                            Valid until <span th:text="${#temporals.format(activeMembership.endDate, 'dd MMM yyyy')}">10 Jan 2027</span>
+                        </div>
+                    </div>
+                    <div th:if="${activeMembership == null}">
+                        <div style="font-size: 14px; font-weight: 600; color: var(--rose);">No Active Membership</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Assign or renew plan below</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Metadata Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle); font-size: 13px;">
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 11px; text-transform: uppercase;">Joined Date</span>
+                    <strong th:text="${#temporals.format(member.joinedDate, 'dd MMMM yyyy')}">10 Jan 2026</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 11px; text-transform: uppercase;">Gender</span>
+                    <strong th:text="${member.gender != null ? member.gender : '—'}">MALE</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 11px; text-transform: uppercase;">Emergency Contact</span>
+                    <strong th:text="${member.emergencyContactName != null ? member.emergencyContactName + ' (' + member.emergencyContactPhone + ')' : '—'}">Sarah (+91 91234)</strong>
+                </div>
+                <div>
+                    <span style="color: var(--text-muted); display: block; font-size: 11px; text-transform: uppercase;">Address</span>
+                    <strong th:text="${member.address != null ? member.address : '—'}">Bandra West</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Tabs Container: Workout, Attendance, Billing -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+            <!-- Tab 1: Current Assigned Workout -->
+            <div class="iron-card">
+                <div class="iron-card-header">
+                    <div class="iron-card-title">
+                        <i data-lucide="clipboard-list" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                        Current Workout Program
+                    </div>
+                    <span th:if="${activeWorkout != null}" class="status-pill active" th:text="${activeWorkout.workoutPlan.difficultyLevel}">INTERMEDIATE</span>
+                </div>
+                
+                <div th:if="${activeWorkout != null}">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 6px;" th:text="${activeWorkout.workoutPlan.name}">Hypertrophy Titan (Push/Pull/Legs)</h3>
+                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;" th:text="${activeWorkout.workoutPlan.description}">Scientific hypertrophy protocol.</p>
+                    <div style="display: flex; gap: 16px; font-size: 12.5px; color: var(--text-muted); margin-bottom: 16px;">
+                        <span>Trainer: <strong style="color: #fff;" th:text="${activeWorkout.trainer != null ? activeWorkout.trainer.fullName : 'Head Coach'}">Marcus Vance</strong></span>
+                        <span>Duration: <strong style="color: #fff;" th:text="${activeWorkout.workoutPlan.durationWeeks} + ' weeks'">8 weeks</strong></span>
+                    </div>
+                    <div style="background: var(--bg-surface-elevated); padding: 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid var(--lime);">
+                        <strong style="color: #fff;">Trainer Instructions: </strong>
+                        <span th:text="${activeWorkout.notes != null ? activeWorkout.notes : 'Focus on progressive overload and form.'}">Focus on progressive overload.</span>
+                    </div>
+                </div>
+
+                <div th:if="${activeWorkout == null}" style="text-align: center; padding: 30px; color: var(--text-muted);">
+                    <i data-lucide="dumbbell" style="width: 28px; height: 28px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;"></i>
+                    No workout plan assigned yet.
+                    <div style="margin-top: 12px;">
+                        <a th:href="@{/workouts}" class="btn-iron-secondary" style="font-size: 12px;">Assign Workout Plan</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Attendance Activity -->
+            <div class="iron-card">
+                <div class="iron-card-header">
+                    <div class="iron-card-title">
+                        <i data-lucide="calendar-check" style="width: 18px; height: 18px; color: var(--emerald);"></i>
+                        Recent Check-Ins
+                    </div>
+                    <span style="font-size: 12px; color: var(--text-muted);" th:text="${#lists.size(attendances)} + ' Total Visits'"></span>
+                </div>
+                <div class="iron-table-wrapper" style="max-height: 240px; overflow-y: auto;">
+                    <table class="iron-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="att : ${attendances}">
+                                <td class="strong" th:text="${#temporals.format(att.attendanceDate, 'dd MMM yyyy')}">14 Oct 2026</td>
+                                <td style="color: var(--emerald);" th:text="${#temporals.format(att.checkInTime, 'hh:mm a')}">09:15 AM</td>
+                                <td th:text="${att.checkOutTime != null ? #temporals.format(att.checkOutTime, 'hh:mm a') : 'In Session'}">10:45 AM</td>
+                                <td style="font-size: 12px; color: var(--text-muted);" th:text="${att.notes}">Morning chest</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(attendances)}">
+                                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">No attendance recorded yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Billing & Invoices Ledger -->
+        <div class="iron-card">
+            <div class="iron-card-header">
+                <div class="iron-card-title">
+                    <i data-lucide="credit-card" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                    Payment History & Tax Invoices
+                </div>
+            </div>
+            <div class="iron-table-wrapper">
+                <table class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Receipt ID</th>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Method</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="pay : ${payments}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 600;" th:text="${pay.receiptNo}">REC-2026-0001</td>
+                            <td th:text="${#temporals.format(pay.paymentDate, 'dd MMM yyyy, hh:mm a')}">10 Jan 2026</td>
+                            <td th:text="${pay.notes != null ? pay.notes : 'Membership Subscription'}">Annual Platinum</td>
+                            <td><span class="method-tag" th:text="${pay.paymentMethod}">UPI</span></td>
+                            <td style="color: #fff; font-weight: 700;" th:text="'₹' + ${#numbers.formatDecimal(pay.amount, 1, 'COMMA', 2, 'POINT')}">₹15,999.00</td>
+                            <td><span class="status-pill active" th:text="${pay.status}">PAID</span></td>
+                            <td style="text-align: right;">
+                                <a th:href="@{'/payments/receipt/' + ${pay.receiptNo}}" class="btn-iron-secondary" style="padding: 4px 10px; font-size: 11px;">
+                                    <i data-lucide="printer" style="width: 13px; height: 13px;"></i> Print
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(payments)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">No transaction records found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Renew / Purchase Modal -->
+        <div id="renewModal" class="iron-modal-backdrop">
+            <div class="iron-modal-content">
+                <div class="modal-header-row">
+                    <div class="iron-card-title">
+                        <i data-lucide="award" style="color: var(--lime); width: 22px; height: 22px;"></i>
+                        Renew / Assign Membership
+                    </div>
+                    <button type="button" class="btn-close-modal" onclick="closeModal('renewModal')">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+                <form th:action="@{/plans/assign}" method="post">
+                    <input type="hidden" name="memberId" th:value="${member.id}">
+                    <div class="form-group">
+                        <label class="form-label">Member</label>
+                        <input type="text" class="form-control-iron" th:value="${member.fullName + ' (' + member.memberCode + ')'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Plan</label>
+                        <select name="planId" class="form-control-iron" required>
+                            <option th:each="p : ${plans}" th:value="${p.id}" th:text="${p.name + ' — ₹' + p.price + ' (' + p.durationDays + ' days)'}">Bronze</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Payment Method</label>
+                        <select name="paymentMethod" class="form-control-iron">
+                            <option value="UPI">UPI / QR Code</option>
+                            <option value="CARD">Credit / Debit Card</option>
+                            <option value="CASH">Cash</option>
+                            <option value="NET_BANKING">Net Banking</option>
+                        </select>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn-iron-secondary" onclick="closeModal('renewModal')">Cancel</button>
+                        <button type="submit" class="btn-iron-primary">
+                            <i data-lucide="check" style="width: 16px; height: 16px;"></i> Confirm & Bill Member
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Workout Programs & Exercise Vault — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <h1 style="font-size: 28px; font-weight: 800;">Workout Programs & Exercise Vault</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Evidence-based training splits, periodized programs, and kinetic exercise biomechanics.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-iron-secondary" onclick="openModal('addExerciseModal')">
+                    <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                    <span>Add Exercise</span>
+                </button>
+                <a th:href="@{/workouts/builder}" class="btn-iron-primary">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                    <span>Build Workout Plan</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Section 1: Workout Plans Grid -->
+        <div style="margin-bottom: 36px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 style="font-size: 20px; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <i data-lucide="clipboard-list" style="width: 20px; height: 20px; color: var(--lime);"></i>
+                    Active Periodized Plans
+                </h2>
+                <span class="status-pill active" th:text="${#lists.size(plans)} + ' Active Programs'"></span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                <div th:each="p : ${plans}" class="iron-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <span class="status-pill active" th:text="${p.difficultyLevel}">INTERMEDIATE</span>
+                            <span class="method-tag" th:text="${p.goal}">HYPERTROPHY</span>
+                        </div>
+                        <h3 style="font-size: 19px; font-weight: 800; color: #fff; margin-bottom: 8px;" th:text="${p.name}">Hypertrophy Titan (PPL)</h3>
+                        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;" th:text="${p.description}">Scientific hypertrophy protocol.</p>
+                        
+                        <div style="background: var(--bg-surface-elevated); padding: 12px; border-radius: var(--radius-md); font-size: 12.5px; color: var(--text-muted); display: flex; justify-content: space-between; margin-bottom: 18px;">
+                            <span>Coach: <strong style="color: #fff;" th:text="${p.trainer != null ? p.trainer.fullName : 'Head Coach'}">Marcus Vance</strong></span>
+                            <span>Duration: <strong style="color: var(--lime);" th:text="${p.durationWeeks} + ' Weeks'">8 Weeks</strong></span>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid var(--border-subtle); padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <a th:href="@{/workouts/builder(id=${p.id})}" class="btn-iron-ghost" style="font-size: 12px;">
+                            <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit Split
+                        </a>
+                        <button type="button" class="btn-iron-secondary" style="font-size: 12px; padding: 6px 14px;" th:onclick="'openAssignModal(' + ${p.id} + ', \'' + ${p.name} + '\')'">
+                            <i data-lucide="user-plus" style="width: 14px; height: 14px; color: var(--lime);"></i> Assign Client
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Exercise Library Vault -->
+        <div class="iron-card">
+            <div class="iron-card-header">
+                <div>
+                    <div class="iron-card-title">
+                        <i data-lucide="dumbbell" style="width: 20px; height: 20px; color: var(--emerald);"></i>
+                        Kinetic Exercise Library
+                    </div>
+                    <div class="iron-card-subtitle">Biomechanical execution cues and muscle target index</div>
+                </div>
+                <span class="status-pill emerald" style="background: rgba(16, 185, 129, 0.15); color: #10B981;" th:text="${#lists.size(exercises)} + ' Movements'"></span>
+            </div>
+
+            <div class="iron-table-wrapper">
+                <table class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Movement Name</th>
+                            <th>Muscle Group</th>
+                            <th>Required Apparatus</th>
+                            <th>Execution Form Cues</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="ex : ${exercises}">
+                            <td class="strong" style="font-size: 14px;">
+                                <i data-lucide="activity" style="width: 14px; height: 14px; color: var(--lime); vertical-align: middle; margin-right: 6px;"></i>
+                                <span th:text="${ex.name}">Barbell Back Squat</span>
+                            </td>
+                            <td>
+                                <span class="method-tag" th:text="${ex.muscleGroup}">LEGS</span>
+                            </td>
+                            <td th:text="${ex.equipmentNeeded != null ? ex.equipmentNeeded : 'Bodyweight'}">Barbell & Squat Rack</td>
+                            <td style="font-size: 12.5px; color: var(--text-secondary); max-width: 450px;" th:text="${ex.instructions}">Break at hips and knees, descend below parallel.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Add Exercise Modal -->
+        <div id="addExerciseModal" class="iron-modal-backdrop">
+            <div class="iron-modal-content">
+                <div class="modal-header-row">
+                    <div class="iron-card-title">
+                        <i data-lucide="dumbbell" style="color: var(--lime); width: 22px; height: 22px;"></i>
+                        Add Exercise to Library
+                    </div>
+                    <button type="button" class="btn-close-modal" onclick="closeModal('addExerciseModal')">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+                <form th:action="@{/workouts/exercise/create}" method="post">
+                    <div class="form-group">
+                        <label class="form-label">Exercise Name *</label>
+                        <input type="text" name="name" class="form-control-iron" placeholder="e.g. Bulgarian Split Squat" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                        <div class="form-group">
+                            <label class="form-label">Target Muscle Group *</label>
+                            <select name="muscleGroup" class="form-control-iron" required>
+                                <option value="CHEST">Chest</option>
+                                <option value="BACK">Back</option>
+                                <option value="LEGS">Legs</option>
+                                <option value="SHOULDERS">Shoulders</option>
+                                <option value="ARMS">Arms</option>
+                                <option value="CORE">Core</option>
+                                <option value="CARDIO">Cardio</option>
+                                <option value="FULL_BODY">Full Body</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Required Apparatus</label>
+                            <input type="text" name="equipmentNeeded" class="form-control-iron" placeholder="e.g. Dumbbells & Bench">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Biomechanical Form Cues</label>
+                        <textarea name="instructions" class="form-control-iron" rows="3" placeholder="Execution instructions, breathing, tempo, safety cues"></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn-iron-secondary" onclick="closeModal('addExerciseModal')">Cancel</button>
+                        <button type="submit" class="btn-iron-primary">Add Exercise</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Assign Plan Modal -->
+        <div id="assignPlanModal" class="iron-modal-backdrop">
+            <div class="iron-modal-content">
+                <div class="modal-header-row">
+                    <div class="iron-card-title">
+                        <i data-lucide="user-plus" style="color: var(--lime); width: 22px; height: 22px;"></i>
+                        Assign Program to Member
+                    </div>
+                    <button type="button" class="btn-close-modal" onclick="closeModal('assignPlanModal')">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+                <form th:action="@{/workouts/assign}" method="post">
+                    <input type="hidden" id="assignPlanId" name="planId">
+                    <div class="form-group">
+                        <label class="form-label">Workout Program</label>
+                        <input type="text" id="assignPlanName" class="form-control-iron" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Member *</label>
+                        <select name="memberId" class="form-control-iron" required>
+                            <option value="">-- Choose Member --</option>
+                            <option th:each="m : ${members}" th:value="${m.id}" th:text="${m.fullName + ' (' + m.memberCode + ')'}">Alex Mercer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Supervising Coach</label>
+                        <select name="trainerId" class="form-control-iron">
+                            <option value="">-- Default Coach --</option>
+                            <option th:each="t : ${trainers}" th:value="${t.id}" th:text="${t.fullName}">Marcus Vance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Personalized Coaching Notes</label>
+                        <input type="text" name="notes" class="form-control-iron" placeholder="e.g. Focus on hamstring depth and progressive overload.">
+                    </div>
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn-iron-secondary" onclick="closeModal('assignPlanModal')">Cancel</button>
+                        <button type="submit" class="btn-iron-primary">Assign Program</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function openAssignModal(planId, planName) {
+                document.getElementById('assignPlanId').value = planId;
+                document.getElementById('assignPlanName').value = planName;
+                openModal('assignPlanModal');
+            }
+        </script>
+    </div>
+</body>
+</html>

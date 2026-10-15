@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Workout Plan Builder — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">
+                    <a th:href="@{/workouts}">Workouts</a>
+                    <i data-lucide="chevron-right" style="width: 14px; height: 14px;"></i>
+                    <span>Plan Architect</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;">Workout Plan Architect</h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Build personalized multi-day training splits with precise sets, reps, and rest intervals.</p>
+            </div>
+            <a th:href="@{/workouts}" class="btn-iron-secondary">
+                <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+                <span>Cancel</span>
+            </a>
+        </div>
+
+        <form th:action="@{/workouts/save}" th:object="${planDto}" method="post">
+            <input type="hidden" th:field="*{id}">
+
+            <!-- Program Overview Card -->
+            <div class="iron-card" style="margin-bottom: 24px;">
+                <div class="iron-card-title" style="margin-bottom: 18px;">
+                    <i data-lucide="settings" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                    1. Program Parameters
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Program Name *</label>
+                        <input type="text" th:field="*{name}" class="form-control-iron" placeholder="e.g. Hypertrophy Titan (6-Day Split)" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Supervising Coach</label>
+                        <select th:field="*{trainerId}" class="form-control-iron">
+                            <option value="">-- Master Coach --</option>
+                            <option th:each="t : ${trainers}" th:value="${t.id}" th:text="${t.fullName}">Marcus Vance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label">Training Goal *</label>
+                        <select th:field="*{goal}" class="form-control-iron" required>
+                            <option value="HYPERTROPHY">Hypertrophy (Muscle Growth)</option>
+                            <option value="STRENGTH">Raw Strength & Power</option>
+                            <option value="FAT_LOSS">Metabolic Fat Loss</option>
+                            <option value="ENDURANCE">Cardiovascular Endurance</option>
+                            <option value="GENERAL_FITNESS">General Kinetic Fitness</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level *</label>
+                        <select th:field="*{difficultyLevel}" class="form-control-iron" required>
+                            <option value="BEGINNER">Beginner</option>
+                            <option value="INTERMEDIATE">Intermediate</option>
+                            <option value="ADVANCED">Advanced</option>
+                            <option value="ELITE">Elite Athlete</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Program Duration (Weeks) *</label>
+                        <input type="number" th:field="*{durationWeeks}" class="form-control-iron" min="1" max="52" value="8" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Program Overview & Methodology</label>
+                    <textarea th:field="*{description}" class="form-control-iron" rows="2" placeholder="Scientific rationale, target muscle groups, warmup protocols..."></textarea>
+                </div>
+            </div>
+
+            <!-- Exercises Split Builder Card -->
+            <div class="iron-card" style="margin-bottom: 24px;">
+                <div class="iron-card-header">
+                    <div>
+                        <div class="iron-card-title">
+                            <i data-lucide="layers" style="width: 18px; height: 18px; color: var(--emerald);"></i>
+                            2. Split Structure & Exercise Movements
+                        </div>
+                        <div class="iron-card-subtitle">Add exercises for each training day of the week</div>
+                    </div>
+                    <button type="button" class="btn-iron-secondary" onclick="addExerciseRow()" style="font-size: 12px; padding: 6px 14px;">
+                        <i data-lucide="plus" style="width: 14px; height: 14px; color: var(--lime);"></i> Add Movement
+                    </button>
+                </div>
+
+                <div class="iron-table-wrapper">
+                    <table class="iron-table" id="exerciseRowsTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 180px;">Training Day</th>
+                                <th>Movement / Exercise</th>
+                                <th style="width: 110px;">Sets</th>
+                                <th style="width: 110px;">Reps</th>
+                                <th style="width: 130px;">Rest (Sec)</th>
+                                <th style="width: 60px; text-align: center;">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody id="exerciseTableBody">
+                            <!-- Row 1 -->
+                            <tr class="exercise-item-row">
+                                <td>
+                                    <select name="exercises[0].dayOfWeek" class="form-control-iron" style="padding: 7px 10px; font-size: 12.5px;">
+                                        <option value="MONDAY">Monday (Push)</option>
+                                        <option value="TUESDAY">Tuesday (Pull)</option>
+                                        <option value="WEDNESDAY">Wednesday (Legs)</option>
+                                        <option value="THURSDAY">Thursday (Upper)</option>
+                                        <option value="FRIDAY">Friday (Lower)</option>
+                                        <option value="SATURDAY">Saturday (Conditioning)</option>
+                                        <option value="SUNDAY">Sunday (Active Rest)</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <select name="exercises[0].exerciseId" class="form-control-iron" style="padding: 7px 10px; font-size: 12.5px;" required>
+                                        <option value="">-- Select Exercise --</option>
+                                        <option th:each="ex : ${exercises}" th:value="${ex.id}" th:text="${ex.name + ' (' + ex.muscleGroup + ')'}">Bench Press</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="exercises[0].sets" class="form-control-iron" style="padding: 7px 10px;" value="4" min="1" max="20">
+                                </td>
+                                <td>
+                                    <input type="number" name="exercises[0].reps" class="form-control-iron" style="padding: 7px 10px;" value="8" min="1" max="100">
+                                </td>
+                                <td>
+                                    <input type="number" name="exercises[0].restSeconds" class="form-control-iron" style="padding: 7px 10px;" value="90" min="0" max="600">
+                                </td>
+                                <td style="text-align: center;">
+                                    <button type="button" class="btn-iron-ghost" style="color: var(--rose); padding: 4px;" onclick="removeRow(this)">
+                                        <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Submit Button Bar -->
+            <div style="display: flex; justify-content: flex-end; gap: 14px;">
+                <a th:href="@{/workouts}" class="btn-iron-secondary">Cancel</a>
+                <button type="submit" class="btn-iron-primary" style="padding: 12px 28px; font-size: 14px;">
+                    <i data-lucide="save" style="width: 16px; height: 16px;"></i>
+                    <span>Publish & Save Plan</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Hidden Template for Dynamic Rows -->
+        <script th:inline="javascript">
+            let rowIndex = 1;
+            const exerciseOptions = /*[[${exercises}]]*/ [];
+
+            function addExerciseRow() {
+                const tbody = document.getElementById('exerciseTableBody');
+                const tr = document.createElement('tr');
+                tr.className = 'exercise-item-row';
+
+                let optionsHtml = '<option value="">-- Select Exercise --</option>';
+                exerciseOptions.forEach(ex => {
+                    optionsHtml += `<option value="${ex.id}">${ex.name} (${ex.muscleGroup})</option>`;
+                });
+
+                tr.innerHTML = `
+                    <td>
+                        <select name="exercises[${rowIndex}].dayOfWeek" class="form-control-iron" style="padding: 7px 10px; font-size: 12.5px;">
+                            <option value="MONDAY">Monday (Push)</option>
+                            <option value="TUESDAY">Tuesday (Pull)</option>
+                            <option value="WEDNESDAY">Wednesday (Legs)</option>
+                            <option value="THURSDAY">Thursday (Upper)</option>
+                            <option value="FRIDAY">Friday (Lower)</option>
+                            <option value="SATURDAY">Saturday (Conditioning)</option>
+                            <option value="SUNDAY">Sunday (Active Rest)</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="exercises[${rowIndex}].exerciseId" class="form-control-iron" style="padding: 7px 10px; font-size: 12.5px;" required>
+                            ${optionsHtml}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="exercises[${rowIndex}].sets" class="form-control-iron" style="padding: 7px 10px;" value="3" min="1" max="20">
+                    </td>
+                    <td>
+                        <input type="number" name="exercises[${rowIndex}].reps" class="form-control-iron" style="padding: 7px 10px;" value="12" min="1" max="100">
+                    </td>
+                    <td>
+                        <input type="number" name="exercises[${rowIndex}].restSeconds" class="form-control-iron" style="padding: 7px 10px;" value="60" min="0" max="600">
+                    </td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn-iron-ghost" style="color: var(--rose); padding: 4px;" onclick="removeRow(this)">
+                            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                rowIndex++;
+                if (window.lucide) window.lucide.createIcons();
+            }
+
+            function removeRow(btn) {
+                const row = btn.closest('tr');
+                if (document.querySelectorAll('.exercise-item-row').length > 1) {
+                    row.remove();
+                } else {
+                    alert('Workout plan must contain at least one movement.');
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

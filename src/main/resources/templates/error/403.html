@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden — IRONCORE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" th:href="@{/css/ironcore.css}">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-deep); text-align: center; padding: 20px;">
+    <div class="iron-card" style="max-width: 520px; padding: 48px 32px; border: 1px solid rgba(244, 63, 94, 0.3);">
+        <div style="width: 64px; height: 64px; border-radius: var(--radius-xl); background: var(--rose-subtle); color: var(--rose); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i data-lucide="shield-alert" style="width: 32px; height: 32px;"></i>
+        </div>
+        <div style="font-size: 14px; font-weight: 800; color: var(--rose); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">Error 403 &bull; Access Forbidden</div>
+        <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #fff;">Clearance Restricted</h1>
+        <p style="color: var(--text-secondary); font-size: 14.5px; line-height: 1.6; margin-bottom: 28px;" th:text="${message != null ? message : 'You do not have the required administrative or staff privileges to access this sector.'}">
+            You do not have administrative clearance to access this sector.
+        </p>
+        <div style="display: flex; justify-content: center; gap: 12px;">
+            <a th:href="@{/dashboard}" class="btn-iron-primary">Return to Command Center</a>
+            <a th:href="@{/login}" class="btn-iron-secondary">Switch User</a>
+        </div>
+    </div>
+    <script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

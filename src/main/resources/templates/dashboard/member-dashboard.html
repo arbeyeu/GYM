@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/base :: layout(~{::title}, ~{::content})}">
+<head>
+    <title>Member Portal — IRONCORE</title>
+</head>
+<body>
+    <div th:fragment="content">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span class="status-pill active">ATHLETE PORTAL</span>
+                    <span class="mono-font" style="font-size: 12px; color: var(--lime);" th:text="${member != null ? member.memberCode : 'IC-M-1001'}">IC-M-1001</span>
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800;">
+                    Welcome back, <span style="color: var(--lime);" th:text="${member != null ? member.firstName : 'Athlete'}">Alex</span>
+                </h1>
+                <p style="color: var(--text-muted); font-size: 14px;">Your digital fitness pass, active training protocol, and attendance logs.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn-iron-primary" onclick="window.print()">
+                    <i data-lucide="qr-code" style="width: 16px; height: 16px;"></i>
+                    <span>Digital Membership Pass</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Membership Status Spotlight -->
+        <div class="iron-card" style="margin-bottom: 28px; background: linear-gradient(135deg, var(--bg-surface), #172033); border: 1px solid var(--border-medium);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+                <div>
+                    <span class="status-pill active" style="margin-bottom: 10px;">SUBSCRIPTION STATUS</span>
+                    <h2 style="font-size: 26px; font-weight: 900; color: #fff; margin-bottom: 4px;" th:text="${activeMembership != null ? activeMembership.plan.name : 'No Active Plan'}">Platinum Titan Annual</h2>
+                    <p style="color: var(--text-secondary); font-size: 14px;" th:text="${activeMembership != null ? activeMembership.plan.description : 'Please consult the front desk or renew below.'}">All Gym Locations, Dedicated VIP Locker, Cold Plunge & Cryo.</p>
+                </div>
+
+                <div style="text-align: right; background: rgba(8, 11, 16, 0.6); padding: 16px 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle);">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.06em;">Valid Through</div>
+                    <div style="font-size: 22px; font-weight: 800; color: var(--lime); font-family: 'Outfit', sans-serif;" th:text="${activeMembership != null ? #temporals.format(activeMembership.endDate, 'dd MMM yyyy') : 'Expired'}">10 Jan 2027</div>
+                    <div style="font-size: 12px; color: var(--emerald); margin-top: 4px;">&bull; Access Card Active</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Column Section: Workout & Attendance -->
+        <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-bottom: 28px;">
+            <!-- Active Workout Program -->
+            <div class="iron-card">
+                <div class="iron-card-header">
+                    <div>
+                        <div class="iron-card-title">
+                            <i data-lucide="dumbbell" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                            Assigned Training Protocol
+                        </div>
+                        <div class="iron-card-subtitle">Personalized workout routine assigned by your coach</div>
+                    </div>
+                </div>
+
+                <div th:if="${activeWorkout != null}">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-size: 18px; font-weight: 800; color: #fff;" th:text="${activeWorkout.workoutPlan.name}">Hypertrophy Titan</h3>
+                        <span class="status-pill active" th:text="${activeWorkout.workoutPlan.difficultyLevel}">INTERMEDIATE</span>
+                    </div>
+                    <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;" th:text="${activeWorkout.workoutPlan.description}">Hypertrophy split.</p>
+
+                    <div style="background: var(--bg-surface-elevated); border-left: 3px solid var(--lime); padding: 12px 16px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 20px;">
+                        <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; display: block; font-weight: 700;">Coach's Notes:</span>
+                        <span style="color: #fff;" th:text="${activeWorkout.notes != null ? activeWorkout.notes : 'Train hard, hydrate, and maintain tempo.'}">Form focus</span>
+                    </div>
+
+                    <div style="font-size: 12px; color: var(--text-muted);">
+                        Supervised by: <strong style="color: #fff;" th:text="${activeWorkout.trainer != null ? activeWorkout.trainer.fullName : 'Master Coach'}">Marcus Vance</strong> &bull;
+                        Plan Duration: <strong style="color: var(--lime);" th:text="${activeWorkout.workoutPlan.durationWeeks} + ' Weeks'">8 Weeks</strong>
+                    </div>
+                </div>
+
+                <div th:if="${activeWorkout == null}" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i data-lucide="activity" style="width: 32px; height: 32px; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;"></i>
+                    No personalized program assigned yet. Contact your trainer or staff to calibrate a routine.
+                </div>
+            </div>
+
+            <!-- Attendance Logs -->
+            <div class="iron-card">
+                <div class="iron-card-header">
+                    <div>
+                        <div class="iron-card-title">
+                            <i data-lucide="calendar-check" style="width: 18px; height: 18px; color: var(--emerald);"></i>
+                            My Gym Visits
+                        </div>
+                        <div class="iron-card-subtitle">Recent turnstile check-in activity</div>
+                    </div>
+                    <span class="status-pill active" th:text="${#lists.size(attendances)} + ' Visits'"></span>
+                </div>
+
+                <div class="iron-table-wrapper" style="max-height: 280px; overflow-y: auto;">
+                    <table class="iron-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Session</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="att : ${attendances}">
+                                <td class="strong" th:text="${#temporals.format(att.attendanceDate, 'dd MMM yyyy')}">14 Oct 2026</td>
+                                <td style="color: var(--emerald);" th:text="${#temporals.format(att.checkInTime, 'hh:mm a')}">09:15 AM</td>
+                                <td style="font-size: 12px; color: var(--text-muted);" th:text="${att.notes != null ? att.notes : 'Workout Session'}">Push Day</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(attendances)}">
+                                <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 30px;">No gym visits recorded yet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Billing & Payments History -->
+        <div class="iron-card">
+            <div class="iron-card-header">
+                <div class="iron-card-title">
+                    <i data-lucide="receipt" style="width: 18px; height: 18px; color: var(--lime);"></i>
+                    Payment History & Invoices
+                </div>
+            </div>
+            <div class="iron-table-wrapper">
+                <table class="iron-table">
+                    <thead>
+                        <tr>
+                            <th>Receipt ID</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Date</th>
+                            <th style="text-align: right;">Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${payments}">
+                            <td class="mono-font" style="color: var(--lime); font-weight: 700;" th:text="${p.receiptNo}">REC-2026-0001</td>
+                            <td th:text="${p.notes != null ? p.notes : 'Membership Subscription'}">Annual Platinum</td>
+                            <td style="color: #fff; font-weight: 700;" th:text="'₹' + ${#numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">₹15,999.00</td>
+                            <td><span class="method-tag" th:text="${p.paymentMethod}">UPI</span></td>
+                            <td th:text="${#temporals.format(p.paymentDate, 'dd MMM yyyy, hh:mm a')}">10 Jan 2026</td>
+                            <td style="text-align: right;">
+                                <a th:href="@{'/payments/receipt/' + ${p.receiptNo}}" class="btn-iron-secondary" style="padding: 4px 10px; font-size: 11.5px;">
+                                    <i data-lucide="printer" style="width: 13px; height: 13px;"></i> Print
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
