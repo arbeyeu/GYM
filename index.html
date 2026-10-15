@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRONCORE — Smart Gym Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-base: #080B10;
+            --bg-surface: #0E131F;
+            --bg-card: #141A29;
+            --bg-elevated: #1B2236;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.16);
+            --lime: #CCFF00;
+            --lime-glow: rgba(204, 255, 0, 0.25);
+            --emerald: #00E599;
+            --cyan: #00D4FF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(ellipse at 50% 0%, rgba(204, 255, 0, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 10% 30%, rgba(0, 212, 255, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 48px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--lime), #99CC00);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            box-shadow: 0 0 24px var(--lime-glow);
+        }
+
+        .brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            color: #fff;
+        }
+
+        .brand-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--lime);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 229, 153, 0.1);
+            border: 1px solid rgba(0, 229, 153, 0.3);
+            color: var(--emerald);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--emerald);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.5; transform: scale(0.9); }
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(204, 255, 0, 0.1);
+            color: var(--lime);
+            border: 1px solid rgba(204, 255, 0, 0.25);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(36px, 6vw, 60px);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #FFFFFF 40%, var(--lime) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 36px;
+        }
+
+        .hero-actions {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--lime);
+            color: #000;
+            font-weight: 700;
+            font-size: 14.5px;
+            padding: 13px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            box-shadow: 0 0 28px var(--lime-glow);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 36px rgba(204, 255, 0, 0.45);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            color: #fff;
+            border: 1px solid var(--border-medium);
+            font-weight: 600;
+            font-size: 14.5px;
+            padding: 13px 26px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-elevated);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-bottom: 60px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 18px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--lime);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Credentials Section */
+        .cred-section {
+            background: linear-gradient(180deg, var(--bg-surface) 0%, #111726 100%);
+            border: 1px solid var(--border-medium);
+            border-radius: 20px;
+            padding: 36px;
+            margin-bottom: 60px;
+        }
+
+        .cred-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .cred-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cred-table th {
+            text-align: left;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .cred-table td {
+            padding: 16px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .code-tag {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(204, 255, 0, 0.1);
+            color: var(--lime);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .role-badge {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .deploy-guide {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 36px;
+        }
+
+        .deploy-guide h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .deploy-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .deploy-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 22px;
+        }
+
+        .deploy-box h4 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--lime);
+        }
+
+        .deploy-box p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .code-block {
+            background: #06080D;
+            border: 1px solid var(--border-subtle);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12.5px;
+            color: var(--lime);
+            overflow-x: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 48px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--border-subtle);
+            margin-top: 60px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Navigation -->
+        <header>
+            <a href="/" class="brand">
+                <div class="brand-badge">
+                    <i data-lucide="dumbbell" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div>
+                    <div class="brand-title">IRONCORE</div>
+                    <div class="brand-sub">Smart Gym System</div>
+                </div>
+            </a>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span>Repository Online & Active</span>
+            </div>
+        </header>
+
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-pill">
+                <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i>
+                Enterprise Fitness Platform
+            </div>
+            <h1>Precision Gym Intelligence.<br><span>Built with Spring Boot 3 & Java 17.</span></h1>
+            <p>Complete management system with granular 4-tier RBAC, turnstile barcode check-in, automated membership billing, and biomechanical workout split designer.</p>
+            <div class="hero-actions">
+                <a href="https://github.com/arbeyeu/GYM" target="_blank" class="btn-primary">
+                    <i data-lucide="github" style="width: 18px; height: 18px;"></i>
+                    <span>GitHub Repository</span>
+                </a>
+                <a href="#credentials" class="btn-secondary">
+                    <i data-lucide="key" style="width: 18px; height: 18px;"></i>
+                    <span>Demo Accounts</span>
+                </a>
+                <a href="#deploy" class="btn-secondary">
+                    <i data-lucide="cloud" style="width: 18px; height: 18px;"></i>
+                    <span>Deployment Guide</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- System Architecture Highlights -->
+        <div class="grid-3">
+            <div class="card">
+                <div class="card-icon">
+                    <i data-lucide="scan" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h3>Turnstile Attendance</h3>
+                <p>Real-time barcode/ID scanner with automatic duplicate check-in prevention, live session duration tracking, and occupancy telemetry.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i data-lucide="receipt" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h3>Automated Billing</h3>
+                <p>Auto-generated tax invoices with printable paper and PDF receipts, supporting Cash, UPI, and Card transactions.</p>
+            </div>
+            <div class="card">
+                <div class="card-icon">
+                    <i data-lucide="activity" style="width: 24px; height: 24px;"></i>
+                </div>
+                <h3>Workout Architect</h3>
+                <p>Day-by-day split programmer with categorized exercise movement library, target muscle grouping, sets, reps, and rest timers.</p>
+            </div>
+        </div>
+
+        <!-- Default Credentials Panel -->
+        <div class="cred-section" id="credentials">
+            <div class="cred-header">
+                <div>
+                    <h2 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; margin-bottom: 4px;">Pre-Configured System Accounts</h2>
+                    <p style="color: var(--text-secondary); font-size: 14px;">IRONCORE auto-seeds credentials for all roles upon initial startup</p>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="cred-table">
+                    <thead>
+                        <tr>
+                            <th>Role Scope</th>
+                            <th>Username</th>
+                            <th>Password</th>
+                            <th>Permissions Scope</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="role-badge" style="background: rgba(204, 255, 0, 0.15); color: var(--lime);">ROLE_ADMIN</span></td>
+                            <td><span class="code-tag">admin</span></td>
+                            <td><span class="code-tag">admin123</span></td>
+                            <td style="color: var(--text-secondary);">Full system control, staff roster, revenue telemetry, plans, audit logs</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge" style="background: rgba(0, 212, 255, 0.15); color: var(--cyan);">ROLE_MANAGER</span></td>
+                            <td><span class="code-tag">manager</span></td>
+                            <td><span class="code-tag">manager123</span></td>
+                            <td style="color: var(--text-secondary);">Member registrations, coaches, turnstile attendance, payments</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge" style="background: rgba(0, 229, 153, 0.15); color: var(--emerald);">ROLE_TRAINER</span></td>
+                            <td><span class="code-tag">trainer_marcus</span></td>
+                            <td><span class="code-tag">trainer123</span></td>
+                            <td style="color: var(--text-secondary);">Assigned athletes, training programs, exercise movements vault</td>
+                        </tr>
+                        <tr>
+                            <td><span class="role-badge">ROLE_MEMBER</span></td>
+                            <td><span class="code-tag">member_alex</span></td>
+                            <td><span class="code-tag">member123</span></td>
+                            <td style="color: var(--text-secondary);">Digital pass, active routine, visit history, billing receipts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Cloud Deployment Guide -->
+        <div class="deploy-guide" id="deploy">
+            <h2>Cloud & Local Hosting Guide</h2>
+            <p style="color: var(--text-secondary); font-size: 14px;">
+                Because IRONCORE is an enterprise <strong>Java 17 Spring Boot backend with embedded Tomcat and H2/MySQL</strong>, it requires a Java container host rather than a serverless frontend router.
+            </p>
+
+            <div class="deploy-tabs">
+                <!-- Option 1: Render -->
+                <div class="deploy-box">
+                    <h4><i data-lucide="cloud-lightning" style="width: 18px; height: 18px;"></i> Render (1-Click Free)</h4>
+                    <p>Connect your GitHub repo to Render as a Web Service. The included <code>render.yaml</code> and <code>Dockerfile</code> configure everything automatically.</p>
+                    <div class="code-block">Build: Dockerfile<br>Port: 8080</div>
+                </div>
+
+                <!-- Option 2: Railway -->
+                <div class="deploy-box">
+                    <h4><i data-lucide="server" style="width: 18px; height: 18px;"></i> Railway</h4>
+                    <p>Select "Deploy from GitHub Repo" on Railway. It auto-detects the multi-stage Dockerfile and deploys in under 2 minutes.</p>
+                    <div class="code-block">railway up</div>
+                </div>
+
+                <!-- Option 3: Local -->
+                <div class="deploy-box">
+                    <h4><i data-lucide="terminal" style="width: 18px; height: 18px;"></i> Local Execution</h4>
+                    <p>Run on Windows with the included zero-friction portable JDK 17 runner:</p>
+                    <div class="code-block">.\run.ps1</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p>IRONCORE — Smart Gym Management System &bull; Licensed under MIT &bull; <a href="https://github.com/arbeyeu/GYM" target="_blank" style="color: var(--lime); text-decoration: none;">GitHub Repository</a></p>
+        </footer>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>
