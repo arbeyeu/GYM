@@ -63,6 +63,7 @@ public class MemberController {
     @GetMapping("/new")
     public String newMemberForm(Model model) {
         model.addAttribute("memberDto", new MemberDto());
+        model.addAttribute("isEdit", false);
         model.addAttribute("plans", membershipService.getActivePlans());
         model.addAttribute("activeNav", "members");
         return "members/form";
@@ -75,6 +76,7 @@ public class MemberController {
                                Model model,
                                RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
+            model.addAttribute("isEdit", false);
             model.addAttribute("plans", membershipService.getActivePlans());
             model.addAttribute("activeNav", "members");
             return "members/form";
@@ -88,6 +90,7 @@ public class MemberController {
             return "redirect:/members/" + saved.getId();
         } catch (Exception e) {
             model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("isEdit", false);
             model.addAttribute("plans", membershipService.getActivePlans());
             model.addAttribute("activeNav", "members");
             return "members/form";

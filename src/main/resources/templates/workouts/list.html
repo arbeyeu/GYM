@@ -53,7 +53,7 @@
                         <a th:href="@{/workouts/builder(id=${p.id})}" class="btn-iron-ghost" style="font-size: 12px;">
                             <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit Split
                         </a>
-                        <button type="button" class="btn-iron-secondary" style="font-size: 12px; padding: 6px 14px;" th:onclick="'openAssignModal(' + ${p.id} + ', \'' + ${p.name} + '\')'">
+                        <button type="button" class="btn-iron-secondary" style="font-size: 12px; padding: 6px 14px;" th:data-plan-id="${p.id}" th:data-plan-name="${p.name}" onclick="openAssignModal(this.dataset.planId, this.dataset.planName)">
                             <i data-lucide="user-plus" style="width: 14px; height: 14px; color: var(--lime);"></i> Assign Client
                         </button>
                     </div>

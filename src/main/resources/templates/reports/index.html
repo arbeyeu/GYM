@@ -53,8 +53,8 @@
                     </div>
                     <div class="iron-card-subtitle">Verified database output</div>
                 </div>
-                <span class="status-pill active" th:if="${reportData.count != null}" th:text="${reportData.count} + ' Records Found'"></span>
-                <span class="status-pill active" th:if="${reportData.totalRevenue != null}" th:text="'Total Revenue: ₹' + ${#numbers.formatDecimal(reportData.totalRevenue, 1, 'COMMA', 2, 'POINT')}"></span>
+                <span class="status-pill active" th:if="${reportData['count'] != null}" th:text="${reportData['count']} + ' Records Found'"></span>
+                <span class="status-pill active" th:if="${reportData['totalRevenue'] != null}" th:text="'Total Revenue: ₹' + ${#numbers.formatDecimal(reportData['totalRevenue'], 1, 'COMMA', 2, 'POINT')}"></span>
             </div>
 
             <!-- Dynamic Table based on reportType -->
