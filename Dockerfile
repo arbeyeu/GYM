@@ -21,9 +21,9 @@ WORKDIR /app
 # Copy the compiled jar from the build stage
 COPY --from=build /app/target/ironcore-gym-1.0.0.jar app.jar
 
-# Configure environment and port
+# Configure environment and port (PORT is read from the platform at runtime)
 ENV PORT=8080
 EXPOSE 8080
 
-# Run Spring Boot with dynamic PORT binding for cloud hosts
-ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "app.jar"]
+# Run Spring Boot binding to the platform-provided PORT (shell form so ${PORT} expands)
+ENTRYPOINT ["sh", "-c", "exec java -Dserver.port=${PORT} -jar app.jar"]
